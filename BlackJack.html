@@ -5,8 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BlackJack Card Counting Simulator</title>
   <link rel="stylesheet" href="newLayout.css">
+  <link rel="stylesheet" href="css/skins.css">
 </head>
 <body>
+
+<a id="strategyLink" href="basic_strategy.html">Basic Strategy</a>
 
 
 
@@ -44,7 +47,7 @@
 
   <div class = "container" id="container"></div> <!-- Container for cards -->
 
-  <img id = "movingEntity" src = "back.png"></img>
+  <img id = "movingEntity" data-card="back" src = "back.png"></img>
 
   <button id="hitButton" class="hitButton">hit</button>
   <button id="standButton" class="standButton">stand</button>
@@ -700,6 +703,11 @@
 </div>
 
 <div class="toggleRow">
+  <input type="checkbox"id="check4">
+  <p id="toggle4" class="discText">Skip dealer blackjack hands (deal the next hand straight away)</p>
+</div>
+
+<div class="toggleRow">
   <div id="decksInShoe" contenteditable="true">6</div>
   <p id="decksInShoeText" class="discText">Amount decks in shoe</p>
 
@@ -779,8 +787,18 @@
 
 
 
+<!-- Settings storage and card skins load first: the game scripts read them
+     at parse time. -->
+<script src="js/cookieStore.js"></script>
+<script src="js/svgDeck.js"></script>
+<script src="js/skins.js"></script>
+<script src="js/skinName.js"></script>
+
 <script src="BlackJack2Script.js"></script>
 <script src="BlackJackInnerWorkings.js"></script>
+
+<script src="js/skinUI.js"></script>
+<script src="js/gameSettings.js"></script>
 
 
 </body>

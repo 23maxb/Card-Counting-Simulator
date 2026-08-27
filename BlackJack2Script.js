@@ -554,7 +554,8 @@ async function newDisplayCard(card, place, hand) {
   
   const theCard = document.createElement("img")
 
-  theCard.src = `${sort}.png`
+  theCard.dataset.card = sort
+  theCard.src = Skins.src(sort)
   //theCard.className = "card2"
   theCard.id = card.worldOrder
   theCard.style.position = "absolute"
@@ -581,7 +582,8 @@ async function newDealerCard(card) {
   startAnimation(50, -350, TIME/2000)
   //await sleep(500)
   const theCard = document.createElement("img")
-  theCard.src = `${sort}.png`
+  theCard.dataset.card = sort
+  theCard.src = Skins.src(sort)
   dealerContainer.appendChild(theCard)
 }
 
@@ -590,7 +592,8 @@ async function hiddenCard() {
   //await sleep(TIME/2)
   let hiddenCard = document.createElement("img")
   hiddenCard.id = "hiddenCard"
-  hiddenCard.src = "back.png"
+  hiddenCard.dataset.card = "back"
+  hiddenCard.src = Skins.src("back")
   dealerContainer.appendChild(hiddenCard)
 }
 
@@ -611,7 +614,8 @@ async function showHiddenCard(dealerHand) {
     sort = sort.slice(1,3)
   }
   
-  hiddenCard.src = `${sort}.png`
+  hiddenCard.dataset.card = sort
+  hiddenCard.src = Skins.src(sort)
 }
 
 function flipCard(card) {
@@ -710,8 +714,10 @@ function moveCard(targetX, targetY, card) {
 }
 let res = 0
 
-goButton.addEventListener('click', () => {
-  if (!document.getElementById("check3").checked) {
+// Dealing a hand lives in its own function so the "skip dealer blackjack"
+// option can start the next hand without a click.
+function startHand(checkBets = true) {
+  if (checkBets && !document.getElementById("check3").checked) {
     checkBetStrategy(activeBet)
   }
   TIME = document.getElementById("speed").innerText
@@ -724,9 +730,11 @@ goButton.addEventListener('click', () => {
   runGame(douce, activeBet)
   document.getElementById("popup").style.display = "none"
   dealer.empty()
-  localStorage.setItem("Bank", bankroll.cash)
+  CookieStore.setItem("Bank", bankroll.cash)
+}
 
- 
+goButton.addEventListener('click', () => {
+  startHand()
 })
 
 let DAS = true
@@ -740,7 +748,7 @@ let money = document.getElementById("setBankroll").innerText
 
 bankReset.addEventListener('click', () => {
   bankroll.cash = money
-  localStorage.setItem('Bank', money)
+  CookieStore.setItem('Bank', money)
   document.getElementById("bankroll").innerText = `Bankroll: ${money}`
 })
 
@@ -842,31 +850,31 @@ function storer() {
   let list2 = ['2','3','4','5','6','7','8','9','10','A']
   for (let i = 0; i<10; i++) {
     for (let j = 0; j<10; j++) {
-      localStorage.setItem(`H${j}${i}`, document.getElementById(`H${j}${i}`).innerText)
+      CookieStore.setItem(`H${j}${i}`, document.getElementById(`H${j}${i}`).innerText)
       if (i < 8) {
-        localStorage.setItem(`S${j}${i}`, document.getElementById(`S${j}${i}`).innerText)
+        CookieStore.setItem(`S${j}${i}`, document.getElementById(`S${j}${i}`).innerText)
       }
-      localStorage.setItem(`P${j}${i}`, document.getElementById(`P${j}${i}`).innerText)
+      CookieStore.setItem(`P${j}${i}`, document.getElementById(`P${j}${i}`).innerText)
       if (i < 3) {
-        localStorage.setItem(`U${j}${i}`, document.getElementById(`U${j}${i}`).innerText)
+        CookieStore.setItem(`U${j}${i}`, document.getElementById(`U${j}${i}`).innerText)
       }
     }
-    localStorage.setItem(`${list[i]}`, document.getElementById(`${list[i]}`).innerText)
-    localStorage.setItem(`${list2[i]}S`, document.getElementById(`${list2[i]}S`).innerText)
+    CookieStore.setItem(`${list[i]}`, document.getElementById(`${list[i]}`).innerText)
+    CookieStore.setItem(`${list2[i]}S`, document.getElementById(`${list2[i]}S`).innerText)
   }
 
   for (let k = 0; k<11; k++) {
-    localStorage.setItem(`B${k}`, document.getElementById(`B${k}`).innerText)
-    localStorage.setItem(`H${k}`, document.getElementById(`H${k}`).innerText)
+    CookieStore.setItem(`B${k}`, document.getElementById(`B${k}`).innerText)
+    CookieStore.setItem(`H${k}`, document.getElementById(`H${k}`).innerText)
   }
-  localStorage.setItem('failMargin', document.getElementById('failMargin').innerText)
-  localStorage.setItem('DASD', DAS)
-  localStorage.setItem('S17D', S17)
+  CookieStore.setItem('failMargin', document.getElementById('failMargin').innerText)
+  CookieStore.setItem('DASD', DAS)
+  CookieStore.setItem('S17D', S17)
 
-  localStorage.setItem('decksInShoe', document.getElementById('decksInShoe').innerText)
-  localStorage.setItem('deckPen', document.getElementById('deckPen').innerText)
-  localStorage.setItem('speed', document.getElementById('speed').innerText)
-  localStorage.setItem('setBankroll', document.getElementById('setBankroll').innerText)
+  CookieStore.setItem('decksInShoe', document.getElementById('decksInShoe').innerText)
+  CookieStore.setItem('deckPen', document.getElementById('deckPen').innerText)
+  CookieStore.setItem('speed', document.getElementById('speed').innerText)
+  CookieStore.setItem('setBankroll', document.getElementById('setBankroll').innerText)
 
   
 }
@@ -881,40 +889,40 @@ function keepStored() {
   let list2 = ['2','3','4','5','6','7','8','9','10','A']
   for (let i = 0; i<10; i++) {
     for (let j = 0; j<10; j++) {
-      if (localStorage.getItem(`H${j}${i}`)) {
-        document.getElementById(`H${j}${i}`).innerText = localStorage.getItem(`H${j}${i}`)
+      if (CookieStore.getItem(`H${j}${i}`)) {
+        document.getElementById(`H${j}${i}`).innerText = CookieStore.getItem(`H${j}${i}`)
       }
-      if (i < 8 && localStorage.getItem(`S${j}${i}`)) {
-        document.getElementById(`S${j}${i}`).innerText = localStorage.getItem(`S${j}${i}`)
+      if (i < 8 && CookieStore.getItem(`S${j}${i}`)) {
+        document.getElementById(`S${j}${i}`).innerText = CookieStore.getItem(`S${j}${i}`)
       }
-      if (localStorage.getItem(`P${j}${i}`)) {
-        document.getElementById(`P${j}${i}`).innerText = localStorage.getItem(`P${j}${i}`)
+      if (CookieStore.getItem(`P${j}${i}`)) {
+        document.getElementById(`P${j}${i}`).innerText = CookieStore.getItem(`P${j}${i}`)
       }
-      if (i < 3 && localStorage.getItem(`U${j}${i}`)) {
-        document.getElementById(`U${j}${i}`).innerText = localStorage.getItem(`U${j}${i}`)
+      if (i < 3 && CookieStore.getItem(`U${j}${i}`)) {
+        document.getElementById(`U${j}${i}`).innerText = CookieStore.getItem(`U${j}${i}`)
       }
-      console.log(localStorage.getItem(`H${j}${i}`))
+      console.log(CookieStore.getItem(`H${j}${i}`))
     }
-    if (localStorage.getItem(`${list[i]}`)) {
-      document.getElementById(`${list[i]}`).innerText = localStorage.getItem(`${list[i]}`)
+    if (CookieStore.getItem(`${list[i]}`)) {
+      document.getElementById(`${list[i]}`).innerText = CookieStore.getItem(`${list[i]}`)
     }
-    if (localStorage.getItem(`${list2[i]}S`)) {
-      document.getElementById(`${list2[i]}S`).innerText = localStorage.getItem(`${list2[i]}S`)
+    if (CookieStore.getItem(`${list2[i]}S`)) {
+      document.getElementById(`${list2[i]}S`).innerText = CookieStore.getItem(`${list2[i]}S`)
     }
   }
   for (let k = 0; k<11; k++) {
-    if (localStorage.getItem(`B${k}`)) {
-      document.getElementById(`B${k}`).innerText = localStorage.getItem(`B${k}`)
+    if (CookieStore.getItem(`B${k}`)) {
+      document.getElementById(`B${k}`).innerText = CookieStore.getItem(`B${k}`)
     } 
-    if (localStorage.getItem(`H${k}`)) {
-      document.getElementById(`H${k}`).innerText = localStorage.getItem(`H${k}`)
+    if (CookieStore.getItem(`H${k}`)) {
+      document.getElementById(`H${k}`).innerText = CookieStore.getItem(`H${k}`)
     } 
   }
-  if (localStorage.getItem('failMargin')) {
-    document.getElementById('failMargin').innerText = localStorage.getItem('failMargin')
+  if (CookieStore.getItem('failMargin')) {
+    document.getElementById('failMargin').innerText = CookieStore.getItem('failMargin')
   }
-  if (localStorage.getItem('DASD') !== undefined) {
-    if (localStorage.getItem('DASD') == 'false') {
+  if (CookieStore.getItem('DASD') !== undefined) {
+    if (CookieStore.getItem('DASD') == 'false') {
       DAS = false
     }
 
@@ -924,25 +932,25 @@ function keepStored() {
     }
   }
 
-  if (localStorage.getItem('S17D') !== undefined) {
-    if (localStorage.getItem('S17D') == 'false') {
+  if (CookieStore.getItem('S17D') !== undefined) {
+    if (CookieStore.getItem('S17D') == 'false') {
       S17 = false
     }
     if (!S17) {
       document.getElementById("buttonS17").innerText = 'H17'
     }
   }
-  if (localStorage.getItem('decksInShoe')) {
-    document.getElementById('decksInShoe').innerText = localStorage.getItem('decksInShoe')
+  if (CookieStore.getItem('decksInShoe')) {
+    document.getElementById('decksInShoe').innerText = CookieStore.getItem('decksInShoe')
   }
-  if (localStorage.getItem('deckPen')) {
-    document.getElementById('deckPen').innerText = localStorage.getItem('deckPen')
+  if (CookieStore.getItem('deckPen')) {
+    document.getElementById('deckPen').innerText = CookieStore.getItem('deckPen')
   }
-  if (localStorage.getItem('speed')) {
-    document.getElementById('speed').innerText = localStorage.getItem('speed')
+  if (CookieStore.getItem('speed')) {
+    document.getElementById('speed').innerText = CookieStore.getItem('speed')
   }
-  if (localStorage.getItem('setBankroll')) {
-    document.getElementById('setBankroll').innerText = localStorage.getItem('setBankroll')
+  if (CookieStore.getItem('setBankroll')) {
+    document.getElementById('setBankroll').innerText = CookieStore.getItem('setBankroll')
   }
 
   
@@ -956,8 +964,9 @@ saveChanges.addEventListener('click', () => {
   storer()
 })
 discardChanges.addEventListener('click', () => {
-  localStorage.clear()
-  
+  const skin = CookieStore.getItem('activeSkin')
+  CookieStore.clear()
+  if (skin) CookieStore.setItem('activeSkin', skin)
 })
 
 

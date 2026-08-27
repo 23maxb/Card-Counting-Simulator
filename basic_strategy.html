@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Basic Strategy — S17 & H17</title>
+  <link rel="stylesheet" href="css/strategy.css">
+</head>
+<body>
+
+<header>
+  <a class="backLink" href="BlackJack.html">&larr; Back to the simulator</a>
+  <h1>BASIC STRATEGY</h1>
+  <p class="subtitle">Dealer stands on soft 17 (S17) and dealer hits soft 17 (H17).</p>
+  <p class="conditions" id="conditions"></p>
+</header>
+
+<div class="controls">
+  <button class="tab" id="tab-s17" type="button">S17</button>
+  <button class="tab" id="tab-h17" type="button">H17</button>
+
+  <label class="toggle"><input type="checkbox" id="diffToggle"> Highlight S17 / H17 differences</label>
+  <label class="toggle"><input type="checkbox" id="trickyToggle"> Highlight tricky hands</label>
+
+  <button id="applyButton" type="button">Load into simulator</button>
+</div>
+
+<p class="apply-status" id="applyStatus"></p>
+
+<main>
+  <p class="set-label" id="setLabel"></p>
+
+  <section id="trickyPanel" class="notes-block" style="display:none">
+    <h2>Hands worth drilling</h2>
+    <ul id="trickyList"></ul>
+  </section>
+
+  <div id="tables"></div>
+
+  <div class="notes">
+    <div>
+      <h2>Legend</h2>
+      <ul id="legend"></ul>
+    </div>
+    <div>
+      <h2>S17 vs H17</h2>
+      <ul id="differences"></ul>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <p>
+    Totals are composition independent: play any hard 16 the same way, whether it is 10-6 or 4-5-7.
+    Where surrender is unavailable, use the fallback action shown in the legend. Where doubling after
+    a split is not offered, 4,4 and 6,6 vs 2 stop being splits.
+  </p>
+  <p>
+    &ldquo;Load into simulator&rdquo; writes these tables into the simulator's editable grids through the
+    same cookie storage the game uses, so they survive a reload.
+  </p>
+</footer>
+
+<script src="js/cookieStore.js"></script>
+<script src="js/strategyData.js"></script>
+<script src="js/strategyPage.js"></script>
+
+</body>
+</html>

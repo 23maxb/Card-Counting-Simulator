@@ -1,0 +1,143 @@
+/* Basic strategy reference page. */
+
+:root {
+  --bg: #0d1220;
+  --panel: #151d33;
+  --ink: #eaeefb;
+  --muted: #93a3c8;
+  --line: rgba(150, 175, 235, 0.28);
+  --hit: #b8453f;
+  --stand: #2f7d55;
+  --double: #2b5cc4;
+  --split: #8a5bc0;
+  --surrender: #8a8f9c;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 28px 22px 60px;
+  font-family: Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+header { max-width: 1040px; margin: 0 auto 22px; }
+
+h1 { margin: 0 0 4px; font-size: 26px; letter-spacing: 0.06em; }
+
+.subtitle { margin: 0 0 2px; font-size: 14px; color: var(--muted); }
+.conditions { margin: 0; font-size: 12.5px; color: var(--muted); }
+
+.backLink {
+  display: inline-block;
+  margin-bottom: 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #9fc0ff;
+  text-decoration: none;
+}
+.backLink:hover { text-decoration: underline; }
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  max-width: 1040px;
+  margin: 0 auto 18px;
+}
+
+.tab {
+  padding: 9px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  cursor: pointer;
+}
+.tab-active { background: #2b5cc4; border-color: #6f96ee; }
+
+.toggle { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+
+#applyButton {
+  margin-left: auto;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  background: #2f7d55;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+}
+#applyButton:hover { background: #379b68; }
+
+.apply-status { max-width: 1040px; margin: 0 auto 14px; font-size: 12.5px; line-height: 1.6; color: #9ff0b8; min-height: 1em; }
+.apply-status-error { color: #ffb4b4; }
+
+main { max-width: 1040px; margin: 0 auto; }
+
+.set-label { margin: 0 0 16px; font-size: 15px; font-weight: 700; color: #b9cbf5; }
+
+.table-block { margin-bottom: 30px; }
+.table-block h2 { margin: 0 0 10px; font-size: 15px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+.table-scroll { overflow-x: auto; }
+
+table { border-collapse: collapse; width: 100%; min-width: 620px; }
+
+th, td {
+  padding: 8px 4px;
+  text-align: center;
+  font-size: 13px;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+}
+
+thead th { background: #2b5cc4; color: #fff; font-weight: 700; }
+.corner { background: var(--panel); }
+.rowhead { background: #b8453f; color: #fff; width: 78px; }
+
+td { font-weight: 700; color: #fff; }
+
+.act-h { background: var(--hit); }
+.act-s { background: var(--stand); }
+.act-d, .act-ds { background: var(--double); }
+.act-p { background: var(--split); }
+.act-rh, .act-rs, .act-rp { background: var(--surrender); }
+.act-diff { outline: 3px solid #ffd257; outline-offset: -3px; }
+
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 8px; }
+.notes h2 { font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.notes ul { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.8; color: #cfd9f2; }
+#legend { list-style: none; padding-left: 0; }
+#legend li { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+#legend span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  padding: 4px 0;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #fff;
+}
+
+footer { max-width: 1040px; margin: 34px auto 0; font-size: 12px; line-height: 1.7; color: var(--muted); }
+
+/* Tricky-hand highlighting and its explanation panel. */
+.act-tricky { box-shadow: inset 0 0 0 3px #ffd257; }
+.act-diff.act-tricky { outline-color: #ff9f45; }
+
+.notes-block {
+  padding: 14px 18px;
+  margin-bottom: 24px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+.notes-block h2 { margin: 0 0 8px; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.notes-block ul { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.75; color: #cfd9f2; }

@@ -88,12 +88,12 @@ class Bankroll {
   }
   add(arg) {
     this.cash += arg
-    localStorage.setItem("Bank", bankroll.cash) 
+    CookieStore.setItem("Bank", bankroll.cash) 
   }
   give(arg) {
     this.cash -= arg
     document.getElementById("bankroll").innerText = `Bankroll: ${this.cash}`
-    localStorage.setItem("Bank", bankroll.cash)
+    CookieStore.setItem("Bank", bankroll.cash)
     return arg
   }
 }
@@ -403,6 +403,15 @@ async function RUNFINALEY() {
   }
 
 }
+// Guards the auto-deal loop when "skip dealer blackjack" is on.
+let AUTO_DEALT = 0
+const AUTO_DEAL_LIMIT = 40
+
+function skipDealerBlackjack() {
+  const box = document.getElementById("check4")
+  return !!(box && box.checked && dealer.checkBJ())
+}
+
 async function func() {
   await sleep(TIME)
   document.getElementById("goButton").removeAttribute("disabled")
@@ -413,7 +422,18 @@ async function func() {
   else if (res < 0) {
     document.getElementById("result").innerText = `Loss: ${res}`
   }
-  localStorage.setItem("Bank", bankroll.cash)
+  CookieStore.setItem("Bank", bankroll.cash)
+
+  // Dealer blackjack is a hand with no decisions in it. When the option is
+  // on, settle it and deal again straight away instead of waiting for a
+  // click - the cards still count, so the shoe stays honest.
+  if (skipDealerBlackjack() && bankroll.cash >= activeBet && AUTO_DEALT < AUTO_DEAL_LIMIT) {
+    AUTO_DEALT += 1
+    await sleep(Math.min(300, TIME))
+    startHand(false)
+    return
+  }
+  AUTO_DEALT = 0
 
   document.getElementById("popup").style.display = "flex"
 
@@ -746,8 +766,8 @@ function displayBets() {
 const HANDPOOL = new HandPool
 let shoe = new Shoe(amountDecks, deckPen);
 const bankroll = new Bankroll(money)
-if (localStorage.getItem("Bank")) {
-  bankroll.cash = localStorage.getItem("Bank")
+if (CookieStore.getItem("Bank")) {
+  bankroll.cash = CookieStore.getItem("Bank")
   document.getElementById("bankroll").innerText = `Bankroll: ${bankroll.cash}`
 }
 else {
