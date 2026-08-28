@@ -58,6 +58,10 @@ the current true count, then plays every hand by basic strategy with Hi-Lo
 index plays applied. Decisions come from the same module the strategy page
 renders, so what auto-play does is exactly what the page shows at that count.
 
+The **auto** button in the action row, next to hit and stand, plays a single
+hand: press it mid-hand and it finishes the hand in front of you, press it
+between hands and it deals one and plays it out.
+
 The **Hands** field beside the button sets how many hands to play; **-1**
 plays until you stop it. The count is remembered between visits, the field
 locks while a run is going, and the hand that reaches the limit is played out
@@ -98,7 +102,11 @@ Toggles on that page:
 #### True count and deviations
 
 Type a true count (or drag the slider) and the tables redraw with the Hi-Lo
-index plays folded in. Every cell an index play moved is outlined in amber
+index plays folded in. **Apply index plays** is what turns them on and off:
+touching the field or the slider ticks it, and unticking it (or **Clear**)
+returns the plain chart. It exists because a true count of zero is a real
+count, not "off" — two indexes already fire at 0 — so sliding back to zero
+cannot be the way to get the plain chart back. Every cell an index play moved is outlined in amber
 with a dot in its corner, hovering one shows what it changed from, and the
 panel above lists the changes. The **Hi-Lo indexes** column lists the full
 index set with the ones currently in force lit up. Clear the field to go back
@@ -176,3 +184,14 @@ them fixed here:
   round ended early. The action buttons and keyboard shortcuts now ignore
   input until the deal finishes, and turning over a card that is not there is
   a no-op rather than an exception.
+
+## Notes
+
+The betting panel used to sit over the middle of the table, on top of the
+cards; it is shifted right, far enough to clear the dealing area and capped so
+it cannot run off the edge on a narrow window.
+
+The simulator's default deviation boxes are missing two of the Illustrious 18
+(12 vs 5 and 12 vs 6 at negative counts), so with the shipped defaults the
+trainer will occasionally flag auto-play for playing them. The strategy page's
+index list is the complete set.

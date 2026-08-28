@@ -206,3 +206,6 @@ footer { max-width: 1040px; margin: 34px auto 0; font-size: 12px; line-height: 1
   color: #ffe9a8;
   background: rgba(255, 210, 87, 0.08);
 }
+
+.count-apply { font-weight: 700; color: #ffd257; }
+.count-apply input { accent-color: #ffd257; }

@@ -193,3 +193,43 @@
 }
 
 #autoPlayHands:disabled { opacity: 0.55; }
+
+/* "auto" sits in the action row with hit and stand, and plays one hand. */
+.autoOneButton {
+  position: absolute;
+  top: 60%;
+  left: 62%;
+  transform: translate(-50%, -50%);
+  width: 6vw;
+  height: 6vw;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 1.2vw;
+  cursor: pointer;
+  border: 1px solid #7f6bbf;
+  background-color: #6f5bd0;
+  color: #f4f2ff;
+}
+
+.autoOneButton:hover { background-color: #5544ab; }
+
+.autoOneButton:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/*
+ * The betting panel sits at the middle of the table, on top of the cards.
+ * Shift it right, out of the dealing area.
+ *
+ * A transform is used rather than repositioning: the panel's children are
+ * absolutely positioned against it with percentages, so moving the painted
+ * box takes the whole panel across without disturbing any of that.
+ *
+ * The shift is capped so the panel can never run off the right edge: its left
+ * edge starts at 50vw, 100% resolves to the panel's own width, and the second
+ * term is whatever room is left before 96vw.
+ */
+.popup-content {
+  transform: translateX(min(13vw, max(0px, calc(46vw - 100%))));
+}

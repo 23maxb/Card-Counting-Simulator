@@ -10,7 +10,8 @@
   var currentSet = 's17';
   var showDiff = false;
   var showTricky = false;
-  var trueCount = null;      // null = plain basic strategy, no index plays
+  var trueCount = null;      // the count in the field, or null when never set
+  var applyCount = false;    // false = plain basic strategy, no index plays
   var deviated = null;       // cached result of applying deviations at trueCount
 
   // section -> row -> Set of dealer column indexes flagged as tricky
@@ -42,9 +43,13 @@
     return a && b && a[col] !== b[col];
   }
 
+  function countIsLive() {
+    return applyCount && trueCount !== null;
+  }
+
   function activeTables() {
     var set = data.sets[currentSet];
-    if (trueCount === null) return { hard: set.hard, soft: set.soft, pairs: set.pairs, changed: {} };
+    if (!countIsLive()) return { hard: set.hard, soft: set.soft, pairs: set.pairs, changed: {} };
     return global.Deviations.applyTo(set, trueCount);
   }
 
@@ -97,7 +102,7 @@
     var box = document.getElementById('countSummary');
     var list = document.getElementById('deviationList');
 
-    if (trueCount === null) {
+    if (!countIsLive()) {
       box.textContent = 'Showing plain basic strategy. Enter a true count to fold in Hi-Lo index plays.';
       box.className = 'count-summary';
       list.innerHTML = '';
@@ -109,7 +114,11 @@
     var moved = Object.keys(deviated.changed).length;
     box.innerHTML = 'At true count <b>' + formatCount(trueCount) + '</b>: ' +
       (moved ? moved + ' cell' + (moved === 1 ? '' : 's') + ' changed, highlighted below.'
-             : 'no index play changes the table yet.');
+             : 'no index play changes the table yet.') +
+      (trueCount === 0 && moved
+        ? ' A true count of zero is still a real count - several indexes fire at 0. ' +
+          'Untick <b>Apply index plays</b> for the plain chart.'
+        : '');
     box.className = 'count-summary count-summary-live';
 
     var html = '';
@@ -121,7 +130,7 @@
     list.innerHTML = html;
     document.getElementById('changePanel').style.display = html ? 'block' : 'none';
 
-    renderIndexReference(trueCount);
+    renderIndexReference(countIsLive() ? trueCount : null);
   }
 
   function formatCount(n) {
@@ -142,14 +151,27 @@
     document.getElementById('indexList').innerHTML = html;
   }
 
-  function setTrueCount(value) {
+  /**
+   * @param {*} value the count to show, or null to clear it entirely.
+   * @param {boolean} [live] whether index plays are applied. Touching the
+   *   field or the slider turns them on; only Clear and the checkbox turn
+   *   them off, so the slider resting at 0 is never mistaken for "off".
+   */
+  function setTrueCount(value, live) {
     var input = document.getElementById('countInput');
+    var check = document.getElementById('countApply');
+
     if (value === null || value === '' || isNaN(parseFloat(value))) {
       trueCount = null;
       input.value = '';
     } else {
       trueCount = parseFloat(value);
     }
+
+    if (live !== undefined) applyCount = live;
+    if (trueCount === null) applyCount = false;
+    check.checked = applyCount;
+
     document.getElementById('countSlider').value = trueCount === null ? 0 : Math.max(-6, Math.min(10, trueCount));
     render();
   }
@@ -208,7 +230,7 @@
     global.CookieStore.flush();
 
     var note = 'Loaded the ' + data.sets[currentSet].label.split(' \u2014 ')[0] + ' tables into the simulator. Open it to play.';
-    if (trueCount !== null) {
+    if (countIsLive()) {
       note = 'Loaded the ' + data.sets[currentSet].label.split(' \u2014 ')[0] +
         ' tables as they stand at true count ' + formatCount(trueCount) +
         ' into the simulator. Open it to play.';
@@ -273,12 +295,21 @@
     var input = document.getElementById('countInput');
     var slider = document.getElementById('countSlider');
 
-    input.addEventListener('input', function () { setTrueCount(input.value); });
+    input.addEventListener('input', function () { setTrueCount(input.value, true); });
     slider.addEventListener('input', function () {
       input.value = slider.value;
-      setTrueCount(slider.value);
+      setTrueCount(slider.value, true);
     });
-    document.getElementById('countClear').addEventListener('click', function () { setTrueCount(null); });
+    document.getElementById('countClear').addEventListener('click', function () { setTrueCount(null, false); });
+    document.getElementById('countApply').addEventListener('change', function (e) {
+      // Ticking the box with an empty field means "apply at zero".
+      if (e.target.checked && trueCount === null) {
+        // Ticking with an empty field means "apply at zero" - show that.
+        document.getElementById('countInput').value = '0';
+        return setTrueCount(0, true);
+      }
+      setTrueCount(trueCount, e.target.checked);
+    });
 
     document.getElementById('applyButton').addEventListener('click', applyToSimulator);
   }

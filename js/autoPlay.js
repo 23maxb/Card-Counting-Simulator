@@ -20,7 +20,7 @@
 
   var running = false;
   var timer = null;
-  var button, statusEl, handsInput;
+  var button, statusEl, handsInput, oneButton;
   var savedAlertToggles = null;
   var lastNote = '';
   var handsDealt = 0;      // rounds dealt in this run
@@ -231,20 +231,34 @@
     savedAlertToggles = null;
   }
 
-  function start() {
+  /**
+   * @param {number} [limitOverride] play exactly this many hands, ignoring
+   *   the Hands field - used by the one-hand button in the action row.
+   */
+  function start(limitOverride) {
     if (running) return;
-    handLimit = readLimit();
-    handsDealt = 0;
+    handLimit = typeof limitOverride === 'number' ? limitOverride : readLimit();
+    // A round already on the table is the first of the run, not a freebie
+    // before it: otherwise "play one hand" would finish this one and deal
+    // another.
+    handsDealt = betweenHands() ? 0 : 1;
     running = true;
     silenceAlerts();
     button.textContent = 'Auto play: on';
     button.classList.add('auto-on');
     statusEl.style.display = 'block';
     handsInput.disabled = true;
+    if (oneButton) oneButton.disabled = true;
     note(handLimit === UNLIMITED
       ? 'Playing until you stop it…'
       : 'Playing ' + handLimit + ' hand' + (handLimit === 1 ? '' : 's') + '…');
     timer = setTimeout(tick, 200);
+  }
+
+  /** Play the hand on the table - or deal one and play it - then stand down. */
+  function playOne() {
+    if (running) return;
+    start(1);
   }
 
   function stop() {
@@ -255,6 +269,7 @@
     button.textContent = 'Auto play';
     button.classList.remove('auto-on');
     if (handsInput) handsInput.disabled = false;
+    if (oneButton) oneButton.disabled = false;
     note(lastNote ? lastNote + ' — stopped.' : 'Stopped.');
   }
 
@@ -286,6 +301,10 @@
 
     button.addEventListener('click', function () { running ? stop() : start(); });
 
+    // The one-hand button lives in the action row, next to hit and stand.
+    oneButton = byId('autoOneButton');
+    if (oneButton) oneButton.addEventListener('click', playOne);
+
     var wrap = document.createElement('div');
     wrap.id = 'autoPlayHandsWrap';
     var label = document.createElement('label');
@@ -305,6 +324,7 @@
   global.AutoPlay = {
     start: start,
     stop: stop,
+    playOne: playOne,
     isRunning: function () { return running; },
     spreadFor: spreadFor,
     roundIsDealt: roundIsDealt,
