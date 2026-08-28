@@ -51,6 +51,19 @@ but falls back to local storage; to use cookies locally, serve the folder:
 python3 -m http.server 8000   # then open http://localhost:8000/
 ```
 
+### Auto play
+
+The **Auto play** button on the table plays for you: it bets the spread for
+the current true count, then plays every hand by basic strategy with Hi-Lo
+index plays applied. Decisions come from the same module the strategy page
+renders, so what auto-play does is exactly what the page shows at that count.
+
+It reads the bet spread grid for the sizing and the number of hands, stops
+when the bankroll falls below the next bet, and puts the coaching alerts back
+the way it found them when you switch it off. (They are silenced while it
+runs, since a modal alert would freeze the loop.) The status line in the
+corner shows the last decision and flags the ones that were index plays.
+
 ### Basic strategy page
 
 [`basic_strategy.html`](basic_strategy.html) — reachable from the **Basic
@@ -66,6 +79,24 @@ Toggles on that page:
 - **Highlight tricky hands** — marks the cells people misplay most often
   (soft 18, hard 12 vs 2-3, 9,9 vs 7, the surrender range …) and lists why
   each one is easy to get wrong.
+
+#### True count and deviations
+
+Type a true count (or drag the slider) and the tables redraw with the Hi-Lo
+index plays folded in. Every cell an index play moved is outlined in amber
+with a dot in its corner, hovering one shows what it changed from, and the
+panel above lists the changes. The **Hi-Lo indexes** column lists the full
+index set with the ones currently in force lit up. Clear the field to go back
+to plain basic strategy.
+
+The set is the Illustrious 18 and the Fab 4 surrenders, plus a handful of
+commonly taught extras (soft 19 doubles, 8 vs 6, splitting tens against a 4).
+Two rules govern how they land on the table:
+
+- An index play replaces the cell outright, surrender included — "15 vs 10,
+  stand at +4" means stop surrendering that hand once the count gets there.
+- A surrender index is also a floor: below it, a hand that basic strategy
+  surrenders gets played out instead.
 
 **Load into simulator** writes the displayed table into the simulator's own
 editable grids through the shared cookie store, including the surrender grid
@@ -92,6 +123,9 @@ js/skinUI.js              skins panel
 js/svgDeck.js             vector card faces
 js/gameSettings.js        checkbox persistence
 js/strategyData.js        S17 and H17 tables
+js/deviations.js          Hi-Lo index plays and how they fold into a table
+js/decisionEngine.js      hand + upcard + count -> the correct play
+js/autoPlay.js            plays the table by itself
 js/strategyPage.js        strategy page rendering and export
 css/skins.css             skins panel styling
 css/strategy.css          strategy page styling
@@ -99,3 +133,22 @@ css/strategy.css          strategy page styling
 
 Card codes are the game's own: rank plus suit initial, with ten written as
 `0` — `AS`, `0H`, `2C`, plus `back`.
+
+## Fixes to the original
+
+Four bugs in the upstream code turned up while building the above, all of
+them fixed here:
+
+- The bet spread grid's "hands" cells are `id="H0"`..`"H10"`, which collide
+  with the hard totals grid's `H00`..`H99` — `H10` exists in both.
+  `getElementById` returned the strategy cell, so bets at true count +5 were
+  graded against a strategy letter, and both grids shared one saved value.
+  The bet grid is now queried within `#betGrid` and saves under its own key.
+- The bet grader duplicated the true-count-zero row into the middle of its
+  list, shifting every positive band down one row, so high counts were graded
+  against the wrong bet.
+- Deviation rules name the dealer's card as `10`, but the code compared
+  against the raw rank, so a dealer J, Q or K never matched a `10` rule and
+  the index play was silently skipped.
+- Hard deviation rules matched on total alone, so `H(16,10) => S` fired on a
+  soft 16 (A,5) and told you to stand on it.

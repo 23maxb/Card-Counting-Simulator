@@ -25,10 +25,24 @@
   <button id="applyButton" type="button">Load into simulator</button>
 </div>
 
+<div class="controls count-controls">
+  <label class="count-label" for="countInput">True count</label>
+  <input type="number" id="countInput" step="0.5" placeholder="off" inputmode="decimal">
+  <input type="range" id="countSlider" min="-6" max="10" step="0.5" value="0">
+  <button type="button" id="countClear">Clear</button>
+</div>
+
+<p class="count-summary" id="countSummary"></p>
+
 <p class="apply-status" id="applyStatus"></p>
 
 <main>
   <p class="set-label" id="setLabel"></p>
+
+  <section class="notes-block" id="changePanel">
+    <h2>Index plays in force</h2>
+    <ul id="deviationList"></ul>
+  </section>
 
   <section id="trickyPanel" class="notes-block" style="display:none">
     <h2>Hands worth drilling</h2>
@@ -45,6 +59,10 @@
     <div>
       <h2>S17 vs H17</h2>
       <ul id="differences"></ul>
+    </div>
+    <div>
+      <h2>Hi-Lo indexes</h2>
+      <ul id="indexList"></ul>
     </div>
   </div>
 </main>
@@ -63,6 +81,7 @@
 
 <script src="js/cookieStore.js"></script>
 <script src="js/strategyData.js"></script>
+<script src="js/deviations.js"></script>
 <script src="js/strategyPage.js"></script>
 
 </body>

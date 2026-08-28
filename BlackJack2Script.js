@@ -274,6 +274,15 @@ function checkS(hand) {
   return (k > 0  && p < 21)
 }
 
+// Deviation rules name the dealer's card as 2-9, 10 or A. Comparing against
+// the raw rank meant J, Q and K never matched a "10" rule, so every index play
+// against a face card was silently skipped.
+function dealerRuleKey(dealer) {
+  let value = dealer.cards[0].getValue()
+  if (value === 11) return 'A'
+  return String(value)
+}
+
 function generalDeviations(hand, dealer, ans) {
   //Endast en ändring är möjlig per situation, kanske fixa det?
   let list = ["0+","1+","2+","3+","4+","5+","6+","-0-","-1-","-2-"]
@@ -335,7 +344,7 @@ function generalDeviations(hand, dealer, ans) {
             id[1] = '11'
           }
         
-          if (hand.cards[0].getValue() == id[0] && dealer.cards[0].getValue() == id[2]) {
+          if (hand.cards[0].getValue() == id[0] && dealerRuleKey(dealer) == id[2]) {
             console.log(id)
             res = true
             if (ans != sna) {
@@ -358,7 +367,7 @@ function generalDeviations(hand, dealer, ans) {
         else if (Ad0i === 'S' && checkS(hand)) {
           console.log(sna)
 
-          if (id[1] == handValue(hand.cards) -11 && id[2] == dealer.cards[0].rank) {
+          if (id[1] == handValue(hand.cards) -11 && id[2] == dealerRuleKey(dealer)) {
             res = true
             if (sna === 's') {
               if (document.getElementById("dubbleButton").disabled) {
@@ -391,7 +400,7 @@ function generalDeviations(hand, dealer, ans) {
         else if (!(hand.cards[0].getValue() == hand.cards[1].getValue()) && Ad0i === 'U' && !checkS(hand) && hand.cards.length == 2 && (hand.placeId === '0' || hand.placeId === '1' || hand.placeId === 'U')) {
           console.log(Ad0i)
 
-          if (id[0] == handValue(hand.cards) && id[1] == dealer.cards[0].rank) {
+          if (id[0] == handValue(hand.cards) && id[1] == dealerRuleKey(dealer)) {
             res = true
             if (ans != sna) {
               if ((!neg && count - margin <= countId) || (neg && count + margin >= countId)) {
@@ -409,10 +418,10 @@ function generalDeviations(hand, dealer, ans) {
 
           }
         }
-        else if (Ad0i === 'H') {
+        else if (Ad0i === 'H' && !checkS(hand)) {
           console.log(Ad0i)
           
-          if (id[0] == handValue(hand.cards) && id[1] == dealer.cards[0].rank) {
+          if (id[0] == handValue(hand.cards) && id[1] == dealerRuleKey(dealer)) {
             if (sna === 's') {
               if (document.getElementById("dubbleButton").disabled) {
                 sna = 'S'
@@ -472,7 +481,7 @@ function checkBetStrategy(ans) {
   let bets = []
   for (let i = 0; i < 11; i++) {
     let k = parseInt(document.getElementById(`B${i}`).innerText)
-    let j = parseInt(document.getElementById(`H${i}`).innerText)
+    let j = parseInt(document.querySelector(`#betGrid #H${i}`).innerText)
     
     bets.push([k,j]) 
   }
@@ -484,10 +493,11 @@ function checkBetStrategy(ans) {
   count = parseFloat(count)
 
 
-  let q = bets[5]
-  bets.splice(5,0,q)
-  
-  for (let i = -5; i<7; i++) {
+  // The grid holds eleven rows, true count -5 through +5, so band i reads
+  // bets[i+5] directly. (This used to duplicate the true-count-zero row into
+  // the middle of the list, which shifted every positive band down one row and
+  // graded high counts against the wrong bet.)
+  for (let i = -5; i<6; i++) {
     if (i === -5) {
       if (count-margin <= -5) {
         if (ans === bets[i+5][0]) {
@@ -865,7 +875,7 @@ function storer() {
 
   for (let k = 0; k<11; k++) {
     CookieStore.setItem(`B${k}`, document.getElementById(`B${k}`).innerText)
-    CookieStore.setItem(`H${k}`, document.getElementById(`H${k}`).innerText)
+    CookieStore.setItem(`betHands${k}`, document.querySelector(`#betGrid #H${k}`).innerText)
   }
   CookieStore.setItem('failMargin', document.getElementById('failMargin').innerText)
   CookieStore.setItem('DASD', DAS)
@@ -914,8 +924,8 @@ function keepStored() {
     if (CookieStore.getItem(`B${k}`)) {
       document.getElementById(`B${k}`).innerText = CookieStore.getItem(`B${k}`)
     } 
-    if (CookieStore.getItem(`H${k}`)) {
-      document.getElementById(`H${k}`).innerText = CookieStore.getItem(`H${k}`)
+    if (CookieStore.getItem(`betHands${k}`)) {
+      document.querySelector(`#betGrid #H${k}`).innerText = CookieStore.getItem(`betHands${k}`)
     } 
   }
   if (CookieStore.getItem('failMargin')) {

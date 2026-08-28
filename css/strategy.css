@@ -141,3 +141,68 @@ footer { max-width: 1040px; margin: 34px auto 0; font-size: 12px; line-height: 1
 }
 .notes-block h2 { margin: 0 0 8px; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .notes-block ul { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.75; color: #cfd9f2; }
+
+/* True count controls and index-play highlighting. */
+.count-controls { gap: 12px; }
+
+.count-label { font-size: 13px; font-weight: 700; letter-spacing: 0.06em; color: var(--muted); }
+
+#countInput {
+  width: 92px;
+  padding: 8px 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+
+#countSlider { flex: 1 1 240px; max-width: 380px; accent-color: #ffd257; }
+
+#countClear {
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  cursor: pointer;
+}
+#countClear:hover { background: #222c48; }
+
+.count-summary { max-width: 1040px; margin: 0 auto 16px; font-size: 13px; color: var(--muted); }
+.count-summary-live { color: #ffd257; }
+
+/* A cell an index play has moved at the current true count. */
+.act-moved {
+  box-shadow: inset 0 0 0 3px #ffd257, 0 0 10px rgba(255, 210, 87, 0.45);
+  position: relative;
+}
+.act-moved::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ffd257;
+}
+
+#changePanel:empty { display: none; }
+#deviationList:empty { color: var(--muted); }
+
+#indexList { list-style: none; padding-left: 0; }
+#indexList li {
+  padding: 3px 8px;
+  margin-bottom: 3px;
+  border-left: 3px solid transparent;
+  font-size: 12.5px;
+  color: #93a3c8;
+}
+#indexList li.index-live {
+  border-left-color: #ffd257;
+  color: #ffe9a8;
+  background: rgba(255, 210, 87, 0.08);
+}
