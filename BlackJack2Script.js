@@ -3,8 +3,12 @@
 // the deal. Without this, acting early (a fast key press, or auto play)
 // advances past the last hand and settles the round before the dealer has a
 // hole card to turn over - which left it face down for the rest of the round.
+// Non-zero while cards are being dealt to a hand mid-round (a split, or the
+// second card that follows one).
+let DEALING = 0
+
 function roundIsDealt() {
-  return !!(dealer && dealer.cards && dealer.cards.length >= 2)
+  return !!(dealer && dealer.cards && dealer.cards.length >= 2) && DEALING === 0
 }
 
 document.addEventListener('DOMContentLoaded', () => { //Load everything first

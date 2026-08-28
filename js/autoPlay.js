@@ -52,7 +52,11 @@
   // before that point stands on a hand while cards are still coming out, and
   // walks the pool past its end into a settle the dealer has no hole card for.
   function roundIsDealt() {
-    return !!(dealer && dealer.cards && dealer.cards.length >= 2);
+    if (dealer && dealer.cards && dealer.cards.length >= 2) {
+      // DEALING is also non-zero while a split is dealing its second card.
+      return typeof DEALING === 'number' ? DEALING === 0 : true;
+    }
+    return false;
   }
 
   function note(text) {
@@ -83,8 +87,15 @@
     var tc = shoe ? shoe.trueCount : 0;
     var spread = spreadFor(tc);
 
-    if (bankroll && Number(bankroll.cash) < spread.amount * spread.hands) {
-      note('Stopped: bankroll is below the next bet.');
+    // A round can call for more than its opening bet - a double or a split
+    // takes another wager per hand - and the game happily lets a bet overdraw
+    // the bankroll. Keep enough behind to cover that before dealing again.
+    var cash = bankroll ? Number(bankroll.cash) : 0;
+    var needed = spread.amount * spread.hands * 2;
+    if (bankroll && cash < needed) {
+      note('Stopped: ' + cash + ' left, which will not cover a ' + spread.amount +
+           ' bet on ' + spread.hands + ' hand' + (spread.hands > 1 ? 's' : '') +
+           ' with a double or split.');
       stop();
       return;
     }
@@ -140,6 +151,11 @@
 
   function tick() {
     if (!running) return;
+    if (bankroll && Number(bankroll.cash) < 0) {
+      note('Stopped: the bankroll went negative.');
+      stop();
+      return;
+    }
     try {
       if (betweenHands()) {
         placeBetAndDeal();

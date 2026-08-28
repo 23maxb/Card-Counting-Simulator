@@ -155,6 +155,15 @@ class Hand {
     HANDPOOL.goNext()
   }
   async split() { 
+    // Splitting leaves this hand holding one card until its replacement is
+    // dealt, and the split button stays enabled across that gap. Latch the
+    // hand as busy so a second split cannot re-enter and pop the card the
+    // first one is still waiting on.
+    if (DEALING > 0) {
+      return
+    }
+    DEALING += 1
+    try {
     document.getElementById("surrenderButton").setAttribute('disabled',true)
 
     let newHand = new Hand(this.bet)
@@ -181,6 +190,9 @@ class Hand {
     }
     displayBets()
     HANDPOOL.activateHand()
+    } finally {
+      DEALING -= 1
+    }
   }
 
   stand() {
@@ -305,8 +317,13 @@ class HandPool {
     this.handIndex += 1
     this.activateHand()
     if (this.HAND && this.HAND.cards.length == 1) {
-      await sleep(TIME)
-      this.HAND.addCard()
+      DEALING += 1
+      try {
+        await sleep(TIME)
+        this.HAND.addCard()
+      } finally {
+        DEALING -= 1
+      }
     }
     document.getElementById("dubbleButton").removeAttribute("disabled")
     if (!this.HAND) {

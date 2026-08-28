@@ -59,10 +59,18 @@ index plays applied. Decisions come from the same module the strategy page
 renders, so what auto-play does is exactly what the page shows at that count.
 
 It reads the bet spread grid for the sizing and the number of hands, stops
-when the bankroll falls below the next bet, and puts the coaching alerts back
+when the bankroll can no longer cover a round with a double or split in it,
+and puts the coaching alerts back
 the way it found them when you switch it off. (They are silenced while it
 runs, since a modal alert would freeze the loop.) The status line in the
 corner shows the last decision and flags the ones that were index plays.
+
+One wrinkle worth knowing: the grid the simulator ships with is not quite an
+S17 chart. Two cells hold H17 plays — soft 19 (A,8) vs 6 doubles, and 11 vs A
+hits — so with the shipped defaults the trainer will occasionally flag
+auto-play for making the correct S17 play. Hitting **Load into simulator** on
+the strategy page fixes both cells and the two agree completely; the grids
+stay editable either way, so nothing here is forced on you.
 
 ### Basic strategy page
 
@@ -152,6 +160,9 @@ them fixed here:
   the index play was silently skipped.
 - Hard deviation rules matched on total alone, so `H(16,10) => S` fired on a
   soft 16 (A,5) and told you to stand on it.
+- A hand could be split again while the first split was still dealing its
+  replacement card, which popped a card out from under the pending split and
+  threw. Dealing a card to a hand now latches it as busy.
 - A hand could be acted on mid-deal, before the dealer's hole card was out.
   Standing that early walked the pool past its last hand and settled the round
   against a one-card dealer, so the hole card was never turned over and the
