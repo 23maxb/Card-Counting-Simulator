@@ -152,3 +152,9 @@ them fixed here:
   the index play was silently skipped.
 - Hard deviation rules matched on total alone, so `H(16,10) => S` fired on a
   soft 16 (A,5) and told you to stand on it.
+- A hand could be acted on mid-deal, before the dealer's hole card was out.
+  Standing that early walked the pool past its last hand and settled the round
+  against a one-card dealer, so the hole card was never turned over and the
+  round ended early. The action buttons and keyboard shortcuts now ignore
+  input until the deal finishes, and turning over a card that is not there is
+  a no-op rather than an exception.

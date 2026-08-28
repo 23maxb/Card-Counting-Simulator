@@ -47,6 +47,14 @@
     return global.getComputedStyle(popup).display !== 'none';
   }
 
+  // The round is dealt in stages, and the dealer's hole card goes down last -
+  // so a two-card dealer hand is the signal that dealing has finished. Acting
+  // before that point stands on a hand while cards are still coming out, and
+  // walks the pool past its end into a settle the dealer has no hole card for.
+  function roundIsDealt() {
+    return !!(dealer && dealer.cards && dealer.cards.length >= 2);
+  }
+
   function note(text) {
     lastNote = text;
     if (statusEl) statusEl.textContent = text;
@@ -137,7 +145,8 @@
         placeBetAndDeal();
       } else {
         var hand = HANDPOOL && HANDPOOL.HAND;
-        if (hand && hand.cards && hand.cards.length >= 2 && !hand.bust && !hand.BJ) {
+        if (roundIsDealt() && hand && hand.cards && hand.cards.length >= 2 &&
+            !hand.bust && !hand.BJ) {
           playHand(hand);
         }
       }
@@ -214,6 +223,7 @@
     start: start,
     stop: stop,
     isRunning: function () { return running; },
-    spreadFor: spreadFor
+    spreadFor: spreadFor,
+    roundIsDealt: roundIsDealt
   };
 })(window);

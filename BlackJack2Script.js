@@ -1,6 +1,16 @@
+// A hand is playable only once the round has finished dealing. The dealer's
+// hole card is the last card out, so a two-card dealer hand marks the end of
+// the deal. Without this, acting early (a fast key press, or auto play)
+// advances past the last hand and settles the round before the dealer has a
+// hole card to turn over - which left it face down for the rest of the round.
+function roundIsDealt() {
+  return !!(dealer && dealer.cards && dealer.cards.length >= 2)
+}
+
 document.addEventListener('DOMContentLoaded', () => { //Load everything first
   
   hitButton.addEventListener('click', () => {
+    if (!roundIsDealt()) return
     alertCenter(HANDPOOL.HAND, dealer, 'H')    
     HANDPOOL.HAND.hit()
   });
@@ -10,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => { //Load everything first
     }
   });
   surrenderButton.addEventListener('click', () => {
+    if (!roundIsDealt()) return
     alertCenter(HANDPOOL.HAND, dealer, 'U')
     HANDPOOL.HAND.surrender()
   });
@@ -19,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => { //Load everything first
     }
   });
   dubbleButton.addEventListener('click', () => {
+    if (!roundIsDealt()) return
     alertCenter(HANDPOOL.HAND, dealer, 'D')
     HANDPOOL.HAND.dubble()
     });
@@ -28,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => { //Load everything first
     }
   });
   standButton.addEventListener('click', () => {
+    if (!roundIsDealt()) return
     alertCenter(HANDPOOL.HAND, dealer, 'S')
 
     HANDPOOL.HAND.stand()
@@ -38,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => { //Load everything first
     }
   });
   splitButton.addEventListener('click', () => {
+    if (!roundIsDealt()) return
     alertCenter(HANDPOOL.HAND, dealer, 'Y')
 
     HANDPOOL.HAND.split()
@@ -610,6 +624,11 @@ async function hiddenCard() {
 async function showHiddenCard(dealerHand) {
   //await sleep(500)
   let hiddenCard = document.getElementById("hiddenCard")
+  // Nothing to turn over if the round was settled before the hole card was
+  // dealt, or if the table has already been cleared for the next hand.
+  if (!hiddenCard || !dealerHand || dealerHand.length < 2) {
+    return
+  }
   let card = dealerHand[1]
   let sort = card.rank + card.suit[0]
 
