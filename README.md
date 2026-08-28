@@ -58,12 +58,19 @@ the current true count, then plays every hand by basic strategy with Hi-Lo
 index plays applied. Decisions come from the same module the strategy page
 renders, so what auto-play does is exactly what the page shows at that count.
 
+The **Hands** field beside the button sets how many hands to play; **-1**
+plays until you stop it. The count is remembered between visits, the field
+locks while a run is going, and the hand that reaches the limit is played out
+in full before auto play stands down. Blank, `0` or anything else unusable is
+read as unlimited.
+
 It reads the bet spread grid for the sizing and the number of hands, stops
 when the bankroll can no longer cover a round with a double or split in it,
 and puts the coaching alerts back
 the way it found them when you switch it off. (They are silenced while it
 runs, since a modal alert would freeze the loop.) The status line in the
-corner shows the last decision and flags the ones that were index plays.
+corner shows the hand number, the last decision, and flags the ones that were
+index plays.
 
 One wrinkle worth knowing: the grid the simulator ships with is not quite an
 S17 chart. Two cells hold H17 plays — soft 19 (A,8) vs 6 doubles, and 11 vs A

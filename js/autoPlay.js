@@ -15,11 +15,16 @@
   // window: shoe, dealer, bankroll, HANDPOOL, S17, douce and activeBet are all
   // reachable here as bare identifiers, and only as bare identifiers.
 
+  var HANDS_KEY = 'autoPlayHands';
+  var UNLIMITED = -1;
+
   var running = false;
   var timer = null;
-  var button, statusEl;
+  var button, statusEl, handsInput;
   var savedAlertToggles = null;
   var lastNote = '';
+  var handsDealt = 0;      // rounds dealt in this run
+  var handLimit = UNLIMITED;
 
   var ACTION_BUTTONS = {
     H: 'hitButton',
@@ -35,6 +40,29 @@
     var speed = parseFloat(byId('speed').innerText);
     if (isNaN(speed)) speed = 500;
     return Math.max(180, speed);
+  }
+
+  function store() { return global.CookieStore || global.localStorage; }
+
+  /**
+   * How many hands to play: a positive count, or -1 for unlimited. Anything
+   * else the field can hold (blank, 0, junk) is read as unlimited.
+   */
+  function readLimit() {
+    var raw = handsInput ? handsInput.value : '';
+    var n = parseInt(raw, 10);
+    if (!isFinite(n) || n < 1) return UNLIMITED;
+    return n;
+  }
+
+  function limitReached() {
+    return handLimit !== UNLIMITED && handsDealt >= handLimit;
+  }
+
+  function handCounter() {
+    return handLimit === UNLIMITED
+      ? 'hand ' + handsDealt
+      : 'hand ' + handsDealt + ' of ' + handLimit;
   }
 
   function enabled(id) {
@@ -84,6 +112,14 @@
   }
 
   function placeBetAndDeal() {
+    // The check happens here rather than at settle time so the hand that
+    // reaches the limit is played out in full before auto play stands down.
+    if (limitReached()) {
+      note('Finished ' + handsDealt + ' hand' + (handsDealt === 1 ? '' : 's') + '.');
+      stop();
+      return;
+    }
+
     var tc = shoe ? shoe.trueCount : 0;
     var spread = spreadFor(tc);
 
@@ -119,7 +155,8 @@
     var wantsTwo = spread.hands >= 2;
     if (douce !== wantsTwo) byId('handSelector').click();
 
-    note('TC ' + tc.toFixed(1) + ' → bet ' + spread.amount +
+    handsDealt += 1;
+    note(handCounter() + ' · TC ' + tc.toFixed(1) + ' → bet ' + spread.amount +
          ' on ' + (wantsTwo ? 2 : 1) + ' hand' + (wantsTwo ? 's' : ''));
     byId('goButton').click();
   }
@@ -144,8 +181,8 @@
     var target = byId(ACTION_BUTTONS[result.action] || 'standButton');
     if (!target || target.disabled) target = byId('standButton');
 
-    note(ranks.join('-') + ' vs ' + dealerCard.rank + ' → ' + result.action +
-         (result.deviated ? ' (index play)' : ''));
+    note(handCounter() + ' · ' + ranks.join('-') + ' vs ' + dealerCard.rank +
+         ' → ' + result.action + (result.deviated ? ' (index play)' : ''));
     target.click();
   }
 
@@ -196,12 +233,17 @@
 
   function start() {
     if (running) return;
+    handLimit = readLimit();
+    handsDealt = 0;
     running = true;
     silenceAlerts();
     button.textContent = 'Auto play: on';
     button.classList.add('auto-on');
     statusEl.style.display = 'block';
-    note('Starting…');
+    handsInput.disabled = true;
+    note(handLimit === UNLIMITED
+      ? 'Playing until you stop it…'
+      : 'Playing ' + handLimit + ' hand' + (handLimit === 1 ? '' : 's') + '…');
     timer = setTimeout(tick, 200);
   }
 
@@ -212,6 +254,7 @@
     restoreAlerts();
     button.textContent = 'Auto play';
     button.classList.remove('auto-on');
+    if (handsInput) handsInput.disabled = false;
     note(lastNote ? lastNote + ' — stopped.' : 'Stopped.');
   }
 
@@ -222,12 +265,36 @@
     button.textContent = 'Auto play';
     button.title = 'Play the spread and every hand by the book, index plays included';
 
+    handsInput = document.createElement('input');
+    handsInput.id = 'autoPlayHands';
+    handsInput.type = 'number';
+    handsInput.step = '1';
+    handsInput.min = '-1';
+    handsInput.title = 'How many hands to play. -1 plays until you stop it.';
+    var saved = null;
+    try { saved = store().getItem(HANDS_KEY); } catch (e) { saved = null; }
+    handsInput.value = saved === null || saved === undefined ? String(UNLIMITED) : saved;
+    handsInput.addEventListener('change', function () {
+      var value = readLimit();
+      handsInput.value = String(value);
+      try { store().setItem(HANDS_KEY, String(value)); } catch (e) { /* ignore */ }
+    });
+
     statusEl = document.createElement('p');
     statusEl.id = 'autoPlayStatus';
     statusEl.style.display = 'none';
 
     button.addEventListener('click', function () { running ? stop() : start(); });
 
+    var wrap = document.createElement('div');
+    wrap.id = 'autoPlayHandsWrap';
+    var label = document.createElement('label');
+    label.setAttribute('for', 'autoPlayHands');
+    label.textContent = 'Hands';
+    wrap.appendChild(label);
+    wrap.appendChild(handsInput);
+
+    document.body.appendChild(wrap);
     document.body.appendChild(button);
     document.body.appendChild(statusEl);
   }
@@ -240,6 +307,8 @@
     stop: stop,
     isRunning: function () { return running; },
     spreadFor: spreadFor,
-    roundIsDealt: roundIsDealt
+    roundIsDealt: roundIsDealt,
+    handsDealt: function () { return handsDealt; },
+    limit: function () { return handLimit; }
   };
 })(window);

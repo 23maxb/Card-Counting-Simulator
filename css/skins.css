@@ -156,3 +156,40 @@
   border-radius: 6px;
   text-align: right;
 }
+
+/* Auto play hand count: how many hands to deal, -1 for unlimited. */
+#autoPlayHandsWrap {
+  position: fixed;
+  top: 12px;
+  right: 378px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  font-family: Helvetica, Arial, sans-serif;
+  background: rgba(20, 30, 60, 0.9);
+  border: 1px solid rgba(150, 175, 235, 0.5);
+  border-radius: 6px;
+}
+
+#autoPlayHandsWrap label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #9fb0d8;
+}
+
+#autoPlayHands {
+  width: 58px;
+  padding: 3px 6px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: #f2f5ff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(150, 175, 235, 0.35);
+  border-radius: 4px;
+}
+
+#autoPlayHands:disabled { opacity: 0.55; }
