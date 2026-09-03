@@ -310,7 +310,7 @@ function generalDeviations(hand, dealer, ans) {
     show.push(hand.cards[i].rank)
   }
 
-  let margin = parseFloat(document.getElementById("failMargin").innerText)
+  let margin = Nums.setting('failMargin')
   let count = shoe.trueCount
 
   for (i in list) {
@@ -498,16 +498,13 @@ function checkBetStrategy(ans) {
   let ser = false
   let bets = []
   for (let i = 0; i < 11; i++) {
-    let k = parseInt(document.getElementById(`B${i}`).innerText)
-    let j = parseInt(document.querySelector(`#betGrid #H${i}`).innerText)
+    let k = Nums.read(document.getElementById(`B${i}`), Nums.SPEC.bet)
+    let j = Nums.read(document.querySelector(`#betGrid #H${i}`), Nums.SPEC.hands)
     
     bets.push([k,j]) 
   }
   let count = shoe.trueCount
-  let margin = document.getElementById("failMargin").innerText
-  
-  
-  margin = parseFloat(margin)
+  let margin = Nums.setting('failMargin')
   count = parseFloat(count)
 
 
@@ -753,7 +750,7 @@ function startHand(checkBets = true) {
   if (checkBets && !document.getElementById("check3").checked) {
     checkBetStrategy(activeBet)
   }
-  TIME = document.getElementById("speed").innerText
+  TIME = Nums.setting('speed')
   
   updateShoe()
   document.getElementById("container").innerHTML = ''
@@ -773,13 +770,14 @@ goButton.addEventListener('click', () => {
 let DAS = true
 let S17 = true
 
-let deckPen = document.getElementById("deckPen").innerText
+let deckPen = Nums.setting('deckPen')
 
-let amountDecks = document.getElementById("decksInShoe").innerText
+let amountDecks = Nums.setting('decksInShoe')
 
-let money = document.getElementById("setBankroll").innerText
+let money = Nums.setting('setBankroll')
 
 bankReset.addEventListener('click', () => {
+  money = Nums.setting('setBankroll')
   bankroll.cash = money
   CookieStore.setItem('Bank', money)
   document.getElementById("bankroll").innerText = `Bankroll: ${money}`
@@ -787,20 +785,21 @@ bankReset.addEventListener('click', () => {
 
 
 function updateShoe() {
-  console.log(deckPen)
+  // Compare against the sanitized values, not the raw text, so an unusable
+  // entry ("", "abc", 0 decks) can never reach the Shoe or rebuild it on
+  // every hand just because the text differs from the number in use.
+  const decks = Nums.setting('decksInShoe')
+  const pen = Nums.setting('deckPen')
   if (shoe.shuffleCheck()) {
-    shoe = new Shoe(amountDecks, deckPen)
+    shoe = new Shoe(decks, pen)
     shoe.shuffle()
   }
-  if (deckPen != document.getElementById("deckPen").innerText ||
-  amountDecks != document.getElementById("decksInShoe").innerText
-  ) {
-    amountDecks = document.getElementById("decksInShoe").innerText
-    deckPen = document.getElementById("deckPen").innerText
-    shoe = new Shoe(amountDecks, deckPen)
+  if (deckPen !== pen || amountDecks !== decks) {
+    amountDecks = decks
+    deckPen = pen
+    shoe = new Shoe(decks, pen)
     shoe.shuffle()
   }
-  
 }
 
 const cell = document.getElementsByClassName("cell")
@@ -986,8 +985,13 @@ function keepStored() {
     document.getElementById('setBankroll').innerText = CookieStore.getItem('setBankroll')
   }
 
-  
-
+  // keepStored() has just rewritten the settings fields, so the values read
+  // out of them at load time are stale. Re-read them here, or the first shoe
+  // of the session is built from the defaults while the page shows the saved
+  // deck count and penetration.
+  amountDecks = Nums.setting('decksInShoe')
+  deckPen = Nums.setting('deckPen')
+  money = Nums.setting('setBankroll')
 }
 
 keepStored()

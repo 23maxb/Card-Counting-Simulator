@@ -185,6 +185,36 @@ them fixed here:
   input until the deal finishes, and turning over a card that is not there is
   a no-op rather than an exception.
 
+### Settings that the game did not actually follow
+
+Every setting on the page is a `contenteditable` div, so its value is whatever
+you typed. That text used to go straight into arithmetic:
+
+- The shoe meter was hardcoded to an eight-deck shoe and counted cards *dealt*
+  rather than cards *left*, so at the default six decks it drained too slowly
+  and never agreed with "Amount decks in shoe" underneath it. The caption was a
+  fixed "8 decks -" for the same reason. It now tracks the real shoe, and a red
+  cut-card line marks where the reshuffle lands.
+- Saved settings are restored into the fields *after* the deck count and
+  penetration were read out of them, so the first shoe of every session was
+  built from the defaults while the page displayed your saved values. The
+  globals are re-read once restoring finishes.
+- A deck count of `0`, `""` or `abc` built an *empty* shoe; `1.5` built two
+  decks while the label said 1.5. A penetration above 1 (or non-numeric) meant
+  the shoe never reshuffled and eventually dealt off the end; `0` reshuffled
+  every hand.
+- A blank or mistyped count tag made the running count `NaN` for the rest of
+  the shoe, which silently took the true count, the bet advice and every index
+  play with it.
+- A non-numeric dealer speed became `sleep(NaN)`, i.e. no delay at all.
+- The bankroll started as a string, so `add()` could concatenate rather than
+  add.
+
+`js/numbers.js` is now the single place a settings field becomes a number: it
+parses, clamps to a sensible range, and writes the corrected value back into
+the field when you leave it, so what is on screen is always what the game is
+using.
+
 ## Notes
 
 The betting panel used to sit over the middle of the table, on top of the

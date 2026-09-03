@@ -21,8 +21,11 @@ class Card {
 class Shoe {
   constructor(amountDecks, shoePen) {
     this.cards = [];
-    this.amountDecks = amountDecks;
-    this.shoePen = shoePen;
+    // Guard the two numbers the whole shoe is built from: a deck count of 0,
+    // "" or "abc" used to build an empty shoe, and a penetration outside
+    // (0,1) either reshuffled every hand or never reshuffled at all.
+    this.amountDecks = Nums.parse(amountDecks, Nums.SPEC.decksInShoe);
+    this.shoePen = Nums.parse(shoePen, Nums.SPEC.deckPen);
     this.initialize();
     this.counter = 0
     this.trueCount = 0
@@ -65,7 +68,9 @@ class Shoe {
     }
     id = id+'S'
     
-    let plus = parseInt(document.getElementById(id).innerText)
+    // A blank or mistyped tag box used to make the running count NaN for the
+    // rest of the shoe, which quietly broke the true count and every index.
+    let plus = Nums.read(id, Nums.SPEC.countTag)
     if (arg==='Hidden') {
       this.stack = plus
     }
@@ -75,7 +80,6 @@ class Shoe {
 
     this.trueCount = this.runningCount/(this.cards.length/52)
     this.counter += 1
-    document.getElementById("shoe").innerText = `Shoe: ${this.cards.length}/${this.amountDecks*52}`
     document.getElementById("runningCount").innerText = `Running Count: ${this.runningCount}`
     document.getElementById("trueCount").innerText = `True Count: ${this.trueCount.toFixed(2)}`
     this.updateMeter()
@@ -87,6 +91,10 @@ class Shoe {
   updateMeter() {
     const decks = Number(this.amountDecks) || 0
     const total = 52 * decks
+    const label = document.getElementById("shoe")
+    if (label) {
+      label.innerText = `Shoe: ${this.cards.length}/${total}`
+    }
     const bar = document.getElementById("bar")
     if (bar && total > 0) {
       const left = 100 * (this.cards.length / total)
@@ -112,14 +120,16 @@ class Shoe {
 
 class Bankroll {
   constructor(cash) {
-    this.cash = cash
+    // The bankroll starts life as the text of a contenteditable div. Left as
+    // a string, add() concatenates instead of adding.
+    this.cash = Number(cash) || 0
   }
   add(arg) {
-    this.cash += arg
+    this.cash = Number(this.cash) + Number(arg)
     CookieStore.setItem("Bank", bankroll.cash) 
   }
   give(arg) {
-    this.cash -= arg
+    this.cash = Number(this.cash) - Number(arg)
     document.getElementById("bankroll").innerText = `Bankroll: ${this.cash}`
     CookieStore.setItem("Bank", bankroll.cash)
     return arg
@@ -812,7 +822,7 @@ const HANDPOOL = new HandPool
 let shoe = new Shoe(amountDecks, deckPen);
 const bankroll = new Bankroll(money)
 if (CookieStore.getItem("Bank")) {
-  bankroll.cash = CookieStore.getItem("Bank")
+  bankroll.cash = Nums.parse(CookieStore.getItem("Bank"), { fallback: 0 })
   document.getElementById("bankroll").innerText = `Bankroll: ${bankroll.cash}`
 }
 else {
@@ -820,7 +830,7 @@ else {
 }
 const dealer = new Dealer
 
-TIME = document.getElementById("speed").innerText
+TIME = Nums.setting('speed')
 console.log(TIME)
 shoe.shuffle()
 
