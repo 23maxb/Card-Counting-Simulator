@@ -248,6 +248,16 @@
   background-color:  rgb(108, 176, 199);
 }
 
+#cutCard {
+  position: absolute;
+  left: 0;
+  bottom: 20%;
+  width: 100%;
+  height: 0.4vh;
+  background-color: rgb(230, 60, 60);
+  pointer-events: none;
+}
+
 #barText {
   
   position: absolute;

@@ -28,6 +28,7 @@ class Shoe {
     this.trueCount = 0
     this.runningCount = 0
     this.stack = 0
+    this.updateMeter()
   }
 
   initialize() {
@@ -77,8 +78,35 @@ class Shoe {
     document.getElementById("shoe").innerText = `Shoe: ${this.cards.length}/${this.amountDecks*52}`
     document.getElementById("runningCount").innerText = `Running Count: ${this.runningCount}`
     document.getElementById("trueCount").innerText = `True Count: ${this.trueCount.toFixed(2)}`
-    document.getElementById("bar").style.height = `${100-(100*(this.counter/(52*8)))}%`
+    this.updateMeter()
     return newCard
+  }
+
+  // The meter shows how much of THIS shoe is left, so it has to follow the
+  // deck count the user picked - it used to be hardcoded to eight decks.
+  updateMeter() {
+    const decks = Number(this.amountDecks) || 0
+    const total = 52 * decks
+    const bar = document.getElementById("bar")
+    if (bar && total > 0) {
+      const left = 100 * (this.cards.length / total)
+      bar.style.height = `${Math.max(0, Math.min(100, left))}%`
+    }
+    const text = document.getElementById("barText")
+    if (text) {
+      text.innerText = `${decks} deck${decks === 1 ? '' : 's'} -`
+    }
+    // Where the cut card sits: the shoe reshuffles once this much is left.
+    const cut = document.getElementById("cutCard")
+    if (cut) {
+      const pen = Number(this.shoePen)
+      if (pen >= 0 && pen <= 1) {
+        cut.style.display = 'block'
+        cut.style.bottom = `${(Math.max(0, Math.min(100, 100 * (1 - pen)))).toFixed(2)}%`
+      } else {
+        cut.style.display = 'none'
+      }
+    }
   }
 }
 
