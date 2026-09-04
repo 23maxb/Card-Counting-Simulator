@@ -194,7 +194,11 @@ you typed. That text used to go straight into arithmetic:
   rather than cards *left*, so at the default six decks it drained too slowly
   and never agreed with "Amount decks in shoe" underneath it. The caption was a
   fixed "8 decks -" for the same reason. It now tracks the real shoe, and a red
-  cut-card line marks where the reshuffle lands.
+  cut-card line marks where the reshuffle lands. (The bar is anchored to the
+  top of the meter, so the level's lower edge sits `100 - height` percent up
+  from the bottom; the line therefore goes at `penetration`, not
+  `1 - penetration`, which would mark the point where only that much had been
+  dealt.)
 - Saved settings are restored into the fields *after* the deck count and
   penetration were read out of them, so the first shoe of every session was
   built from the defaults while the page displayed your saved values. The

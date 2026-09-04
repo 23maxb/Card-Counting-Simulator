@@ -104,13 +104,17 @@ class Shoe {
     if (text) {
       text.innerText = `${decks} deck${decks === 1 ? '' : 's'} -`
     }
-    // Where the cut card sits: the shoe reshuffles once this much is left.
+    // Where the cut card sits. The bar is anchored to the TOP of the meter and
+    // its height is the fraction of the shoe left, so the level's lower edge
+    // sits (100 - height)% up from the bottom. The reshuffle fires at a height
+    // of (1 - pen), which puts the line pen% up from the bottom - not
+    // (1 - pen)%, which would mark the point where only pen% had been dealt.
     const cut = document.getElementById("cutCard")
     if (cut) {
       const pen = Number(this.shoePen)
       if (pen >= 0 && pen <= 1) {
         cut.style.display = 'block'
-        cut.style.bottom = `${(Math.max(0, Math.min(100, 100 * (1 - pen)))).toFixed(2)}%`
+        cut.style.bottom = `${(Math.max(0, Math.min(100, 100 * pen))).toFixed(2)}%`
       } else {
         cut.style.display = 'none'
       }
